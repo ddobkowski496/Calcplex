@@ -1,14 +1,16 @@
-# Game Library package
+# Calcplex Game Library
 
-This download contains a ready-to-deploy game-only site in the `site/` folder. It includes the 43 supplied games, the site JavaScript, the separate player page, and Three.js r149 for NASCAR 27.
+Calcplex now serves the game-only site. The website files are at the top level of this repository: `index.html`, `game-library.js`, `player.html`, and the `games/` folder.
 
-## Deploy on Cloudflare Pages
+## Put it on Cloudflare Pages
 
-1. Download and extract this ZIP.
-2. Put the extracted `README.md` and `site/` folder in the root of your GitHub repository.
-3. In Cloudflare Pages, connect that repository. Use **None** as the framework preset, leave the build command blank, and set the build output directory to `site`.
-4. Deploy.
+1. Open Cloudflare and choose **Workers & Pages**.
+2. Choose **Create application** → **Pages** → **Connect to Git** and select this **Calcplex** repository.
+3. Set **Production branch** to `main`, **Framework preset** to **None**, leave the **Build command** blank, and set **Build output directory** to `/` (or `.` if Cloudflare asks for a relative path).
+4. Click **Save and Deploy**. Cloudflare will publish the site and redeploy it when you push updates to `main`.
 
-Three oversized game files are stored as 20 MiB pieces under `site/games/chunks/`. `site/game-library.js` assembles the pieces when a player opens those games. Keep all pieces together and do not rename them. Every published site asset is below Cloudflare Pages' 25 MiB per-file limit. The collection is about 453 MB overall, so uploading and the first deploy can take time. See [Cloudflare Pages limits](https://developers.cloudflare.com/pages/platform/limits/).
+## Keep all game files together
 
-The game player uses a sandboxed iframe. Games that require storage or other restricted browser features may behave differently.
+The `games/` folder contains the supplied games. The three largest games are saved as numbered pieces in `games/chunks/`; `game-library.js` joins those pieces when you open one of those games. Keep the chunk names and folder structure unchanged.
+
+In the site, enter **0000** on the calculator to open the game library. Games load in the embedded player. Some games may behave differently if their original code depends on browser features restricted inside an embedded frame.
