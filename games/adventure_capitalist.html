@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Capitalist</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: #4caf50; margin-bottom: 5px; }
+        .balance-box {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #85bb65;
+            background: #2a2a2a;
+            padding: 10px 30px;
+            border-radius: 8px;
+            border: 2px solid #4caf50;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .business-card {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .left-panel { display: flex; align-items: center; gap: 15px; width: 50%; }
+        .icon { font-size: 2rem; width: 40px; text-align: center; }
+        .info { display: flex; flex-direction: column; width: 100%; }
+        .name { font-weight: bold; font-size: 1.1rem; }
+        .progress-bar-bg {
+            background: #444;
+            border-radius: 4px;
+            height: 12px;
+            width: 100%;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: #4caf50;
+            height: 100%;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+        .right-panel { display: flex; flex-direction: column; gap: 5px; width: 45%; align-items: flex-end; }
+        button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+        button:hover { background: #45a049; }
+        button:disabled { background: #555; color: #888; cursor: not-allowed; }
+        .manager-btn { background: #008cba; }
+        .manager-btn:hover { background: #007c43; }
+        .count { font-size: 0.9rem; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <h1>OFFLINE CAPITALIST</h1>
+    <div class="balance-box">\$<span id="cash-display">0.00</span></div>
+
+    <div class="container" id="business-container"></div>
+
+    <script>
+        // Global Game State
+        let cash = 0;
+        const SAVE_KEY = 'offline-capitalist-save-v1';
+
+        // Data for iconic businesses matching the tier scaling mechanics
+        const businesses = [
+            { id: 0, name: "Lemonade Stand", icon: "🍋", cost: 4, revenue: 1, duration: 600, count: 1, isRunning: false, progress: 0, hasManager: false, managerCost: 1000 },
+            { id: 1, name: "Newspaper Delivery", icon: "📰", cost: 60, revenue: 60, duration: 3000, count: 0, isRunning: false, progress: 0, hasManager: false, managerCost: 15000 },
+            { id: 2, name: "Car Wash", icon: "🚗", cost: 720, revenue: 540, duration: 6000, count: 0, isRunning: false, progress: 0, hasManager: false, managerCost: 100000 },
+            { id: 3, name: "Pizza Delivery", icon: "🍕", cost: 8640, revenue: 4320, duration: 12000, count: 0, isRunning: false, progress: 0, hasManager: false, managerCost: 500000 },
+            { id: 4, name: "Donut Shop", icon: "🍩", cost: 103680, revenue: 51840, duration: 24000, count: 0, isRunning: false, progress: 0, hasManager: false, managerCost: 2500000 },
+            { id: 5, name: "Oil Company", icon: "🛢️", cost: 1244160, revenue: 622080, duration: 96000, count: 0, isRunning: false, progress: 0, hasManager: false, managerCost: 50000000 }
+        ];
+
+        function init() {
+            loadSave();
+            const container = document.getElementById('business-container');
+            businesses.forEach(biz => {
+                const card = document.createElement('div');
+                card.className = 'business-card';
+                card.id = `biz-${biz.id}`;
+                card.innerHTML = `
+                    <div class="left-panel" onclick="startBusiness(${biz.id})", style="cursor:pointer;">
+                        <div class="icon">${biz.icon}</div>
+                        <div class="info">
+                            <div class="name">${biz.name} <span class="count" id="count-${biz.id}">x${biz.count}</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar" id="progress-${biz.id}"></div></div>
+                        </div>
+                    </div>
+                    <div class="right-panel">
+                        <button id="buy-${biz.id}" onclick="buyBusiness(${biz.id})">Buy 1 (+$${biz.cost})</button>
+                        <button id="mgr-${biz.id}" class="manager-btn" onclick="buyManager(${biz.id})">Hire Mgr ($${biz.managerCost})</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            updateUI();
+            setInterval(gameLoop, 50); // Frame cycle for fluid progress loading
+            setInterval(saveGame, 1000);
+        }
+
+        function loadSave() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+                if (!saved || saved.version !== 1 || !Number.isFinite(saved.cash) || !Array.isArray(saved.businesses)) return;
+                cash = Math.max(0, saved.cash);
+                saved.businesses.forEach((entry, index) => {
+                    const biz = businesses[index];
+                    if (!biz || !entry || entry.id !== biz.id) return;
+                    biz.cost = Number.isFinite(entry.cost) ? Math.max(biz.cost, entry.cost) : biz.cost;
+                    biz.count = Number.isInteger(entry.count) ? Math.max(0, entry.count) : biz.count;
+                    biz.hasManager = Boolean(entry.hasManager);
+                    // A partially completed run resumes from its saved progress.
+                    biz.progress = Number.isFinite(entry.progress) ? Math.min(biz.duration, Math.max(0, entry.progress)) : 0;
+                    biz.isRunning = Boolean(entry.isRunning && (biz.count > 0 || biz.hasManager));
+                });
+            } catch (error) {
+                console.warn('Could not restore Offline Capitalist save:', error);
+            }
+        }
+
+        function saveGame() {
+            try {
+                localStorage.setItem(SAVE_KEY, JSON.stringify({
+                    version: 1,
+                    cash,
+                    savedAt: Date.now(),
+                    businesses: businesses.map(({ id, cost, count, hasManager, progress, isRunning }) => ({ id, cost, count, hasManager, progress, isRunning }))
+                }));
+            } catch (error) {
+                console.warn('Could not save Offline Capitalist progress:', error);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('cash-display').innerText = cash.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            businesses.forEach(biz => {
+                document.getElementById(`count-${biz.id}`).innerText = `x${biz.count}`;
+                const buyBtn = document.getElementById(`buy-${biz.id}`);
+                buyBtn.innerText = `Buy 1 ($${biz.cost})`;
+                buyBtn.disabled = cash < biz.cost;
+
+                const mgrBtn = document.getElementById(`mgr-${biz.id}`);
+                if (biz.hasManager) {
+                    mgrBtn.innerText = "Automated!";
+                    mgrBtn.disabled = true;
+                } else {
+                    mgrBtn.disabled = cash < biz.managerCost || biz.count === 0;
+                }
+            });
+        }
+
+        function startBusiness(id) {
+            let biz = businesses[id];
+            if (biz.count > 0 && !biz.isRunning) {
+                biz.isRunning = true;
+                biz.progress = 0;
+            }
+        }
+
+        function buyBusiness(id) {
+            let biz = businesses[id];
+            if (cash >= biz.cost) {
+                cash -= biz.cost;
+                biz.count++;
+                biz.cost = Math.round(biz.cost * 1.15); // Classic incremental scaling
+                updateUI();
+                saveGame();
+            }
+        }
+
+        function buyManager(id) {
+            let biz = businesses[id];
+            if (cash >= biz.managerCost && biz.count > 0) {
+                cash -= biz.managerCost;
+                biz.hasManager = true;
+                updateUI();
+                saveGame();
+            }
+        }
+
+        function gameLoop() {
+            businesses.forEach(biz => {
+                // If automated by manager and idle, turn it on
+                if (biz.hasManager && !biz.isRunning && biz.count > 0) {
+                    biz.isRunning = true;
+                    biz.progress = 0;
+                }
+
+                if (biz.isRunning) {
+                    biz.progress += 50; // Milliseconds passed
+                    let percent = (biz.progress / biz.duration) * 100;
+                    
+                    if (percent >= 100) {
+                        cash += biz.revenue * biz.count;
+                        biz.isRunning = false;
+                        biz.progress = 0;
+                        document.getElementById(`progress-${biz.id}`).style.width = '0%';
+                        updateUI();
+                        saveGame();
+                    } else {
+                        document.getElementById(`progress-${biz.id}`).style.width = percent + '%';
+                    }
+                }
+            });
+            // Keep verification of button triggers active even when idle
+            businesses.forEach(biz => {
+                document.getElementById(`buy-${biz.id}`).disabled = cash < biz.cost;
+                if (!biz.hasManager) {
+                    document.getElementById(`mgr-${biz.id}`).disabled = cash < biz.managerCost || biz.count === 0;
+                }
+            });
+        }
+
+        window.onload = init;
+        window.addEventListener('pagehide', saveGame);
+    </script>
+</body>
+</html>
