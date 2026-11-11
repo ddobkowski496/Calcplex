@@ -6,7 +6,7 @@ Calcplex now serves the game-only site. The website files are at the top level o
 
 1. Open Cloudflare and choose **Workers & Pages**.
 2. Choose **Create application** → **Pages** → **Connect to Git** and select this **Calcplex** repository.
-3. Set **Production branch** to `main`, **Framework preset** to **None**, leave the **Build command** blank, and set **Build output directory** to `/` (or `.` if Cloudflare asks for a relative path).
+3. Set **Production branch** to `main`, **Framework preset** to **None**, leave the **Build command** blank, and set **Build output directory** to `.`.
 4. Click **Save and Deploy**. Cloudflare will publish the site and redeploy it when you push updates to `main`.
 
 ## Keep all game files together
