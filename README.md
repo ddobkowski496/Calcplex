@@ -17,7 +17,7 @@ Calcplex is a calculator first website. The home page contains regular, scientif
 4. Set framework preset to **None**, leave the build command empty, and set the build output directory to `/` (the repository root).
 5. Choose **Save and Deploy**. Wait for the deployment to finish, then open its `pages.dev` address.
 
-The calculator always keeps a local copy and supports optional email and password accounts for syncing calculation history across devices. In Supabase, enable **Authentication → Providers → Email**. If email confirmation is enabled, new users must click the confirmation link before signing in. The Supabase redirect allowlist includes `https://*.pages.dev/**`, and sign-up returns users to the current deployed site origin; set an additional exact redirect URL if you later use a custom domain.
+The calculator always keeps a local copy and supports optional email and password accounts for syncing calculation history across devices. In Supabase, enable **Authentication → Providers → Email**. If email confirmation is enabled, new users must click the confirmation link before signing in. Supabase is configured with `https://online-calc.pages.dev` as its Site URL and `https://online-calc.pages.dev/**` as its allowed redirect. If you later move to a custom domain, update both values in Supabase Authentication → URL Configuration.
 
 Create the cloud table and row access policies in **SQL Editor** by running:
 
