@@ -17,6 +17,24 @@ Calcplex is a calculator first website. The home page contains regular, scientif
 4. Set framework preset to **None**, leave the build command empty, and set the build output directory to `/` (the repository root).
 5. Choose **Save and Deploy**. Wait for the deployment to finish, then open its `pages.dev` address.
 
-The calculator saves history automatically in this browser and tries anonymous cloud save through the configured Supabase project. Cloud save needs anonymous sign-in enabled and the `calculator_saves` table and policies created in Supabase. If cloud saving is unavailable, calculator history remains saved on that device.
+The calculator always keeps a local copy and supports optional email and password accounts for syncing calculation history across devices. In Supabase, enable **Authentication → Providers → Email**. If email confirmation is enabled, new users must click the confirmation link before signing in.
+
+Create the cloud table and row access policies in **SQL Editor** by running:
+
+```sql
+create table if not exists public.calculator_saves (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  data jsonb not null default '{}',
+  updated_at timestamptz not null default now()
+);
+alter table public.calculator_saves enable row level security;
+drop policy if exists calculator_saves_owner on public.calculator_saves;
+create policy calculator_saves_owner on public.calculator_saves
+  for all to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+```
+
+The Supabase publishable key in `app.js` is intended for browser use; the row policy limits each account to its own saved row. If cloud sync is unavailable, calculation history remains saved on that device.
 
 The `about:blank` tab is only a blank-tab wrapper around the library. It does not guarantee that browser history, network activity, or organization restrictions are hidden or bypassed.
