@@ -28,6 +28,7 @@ create table if not exists public.calculator_saves (
   updated_at timestamptz not null default now()
 );
 alter table public.calculator_saves enable row level security;
+drop policy if exists "user owns save" on public.calculator_saves;
 drop policy if exists calculator_saves_owner on public.calculator_saves;
 create policy calculator_saves_owner on public.calculator_saves
   for all to authenticated
