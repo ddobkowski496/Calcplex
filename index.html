@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ff6b9a">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2f7bff">
 <title>Calculator</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{font-family:'Fredoka',system-ui,sans-serif;--ink:#2b2b3a;--pink:#ff6b9a;--soft:#ffe1ea;--body:#2b2b3a;--key:#3d3d55;--key2:#505070;color:var(--ink);background:var(--pink)}
+:root{font-family:'Fredoka',system-ui,sans-serif;--ink:#10213f;--blue:#2f7bff;--soft:#dbe8ff;--body:#0e2250;--key:#1c3a7d;--key2:#2a4f9f;color:var(--ink);background:var(--blue)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--pink);min-height:100vh}
+body{margin:0;background:linear-gradient(160deg,#3b86ff,#1f5ce0);background-attachment:fixed;min-height:100vh}
 .wrap{max-width:900px;margin:0 auto;padding:max(22px,env(safe-area-inset-top)) 16px 48px}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px}
 .top h1{font-size:30px;font-weight:600;margin:0;color:#fff}
@@ -23,54 +23,40 @@ body{margin:0;background:var(--pink);min-height:100vh}
 .account-form{display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:end;margin-top:12px}
 .account-form label{display:grid;gap:5px;color:#777;font-size:12px}
 .account-form input{min-width:0;padding:11px 14px;border:2px solid #f1f1f6;background:#f1f1f6;border-radius:999px;font:inherit;outline:none}
-.account-form input:focus{border-color:var(--pink)}
+.account-form input:focus{border-color:var(--blue)}
 .account-form button{font:inherit;font-weight:500;padding:11px 18px;border:0;background:#f1f1f6;color:var(--ink);border-radius:999px;cursor:pointer}
-.account-form button.primary{background:var(--pink);color:#fff}
+.account-form button.primary{background:var(--blue);color:#fff}
 .account-note{font-size:12px;color:#777;margin:8px 4px 0;min-height:14px}
 .account-email{font-weight:600}
 .panel{background:var(--body);border-radius:36px;padding:22px;box-shadow:0 10px 0 rgba(0,0,0,.2)}
-.screen{width:100%;font:500 30px ui-monospace,SFMono-Regular,Consolas,monospace;text-align:right;padding:16px 18px;border:0;border-radius:20px;color:#1f2a1f;background:#e4ecd6;outline:none;box-shadow:inset 0 3px 8px rgba(0,0,0,.18)}
-.screen:focus{box-shadow:inset 0 3px 8px rgba(0,0,0,.18),0 0 0 3px var(--pink)}
-.result{min-height:31px;margin:10px 8px 14px;text-align:right;color:#d6d8ea;font:18px ui-monospace,monospace;overflow-wrap:anywhere}
+.screen{width:100%;font:500 30px ui-monospace,SFMono-Regular,Consolas,monospace;text-align:right;padding:16px 18px;border:0;border-radius:20px;color:#0b1a38;background:#dfeaff;outline:none;box-shadow:inset 0 3px 8px rgba(0,0,0,.18)}
+.screen:focus{box-shadow:inset 0 3px 8px rgba(0,0,0,.18),0 0 0 3px var(--blue)}
+.result{min-height:31px;margin:10px 8px 14px;text-align:right;color:#c9d8ff;font:18px ui-monospace,monospace;overflow-wrap:anywhere}
 .keys{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .key{font:inherit;font-size:18px;font-weight:500;min-height:54px;border:0;border-radius:18px;background:var(--key);color:#fff;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.35)}
 .key:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
 .key.fn{background:var(--key2)}
 .key.op{background:var(--soft);color:var(--ink)}
-.key.eq{background:var(--pink);color:#fff;font-weight:600}
+.key.eq{background:#4d94ff;color:#fff;font-weight:600}
 .graphbox{display:none;margin-top:16px}.graphbox.show{display:block}
 .graph-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .graph-controls label{font-size:14px;color:#fff}
 .graph-controls input{width:90px;padding:10px 14px;border:0;border-radius:999px;background:#f1f1f6;font:inherit;outline:none;text-align:center}
 .graph-controls #graphExpr{width:200px;text-align:left}
-.small{font:inherit;font-weight:600;border:0;background:var(--pink);color:#fff;padding:10px 20px;border-radius:999px;cursor:pointer}
+.small{font:inherit;font-weight:600;border:0;background:var(--blue);color:#fff;padding:10px 20px;border-radius:999px;cursor:pointer}
 .graphbox canvas{display:block;width:100%;height:290px;border-radius:22px;background:#fff}
-.hint{color:#d6d8ea;font-size:13px}
+.hint{color:#c9d8ff;font-size:13px}
 .graphbox>.hint{display:none}
 .history{margin-top:16px;padding-top:12px;border-top:2px solid rgba(255,255,255,.1)}
 .history h2{font-size:14px;font-weight:500;margin:0 0 8px;color:#fff}
 .history-list{display:grid;gap:4px;max-height:130px;overflow:auto}
-.history-row{display:flex;justify-content:space-between;gap:12px;padding:6px 10px;color:#d6d8ea;font:13px ui-monospace,monospace;cursor:pointer;border-radius:12px}
+.history-row{display:flex;justify-content:space-between;gap:12px;padding:6px 10px;color:#c9d8ff;font:13px ui-monospace,monospace;cursor:pointer;border-radius:12px}
 .history-row:hover{background:rgba(255,255,255,.08);color:#fff}
 .footer{margin-top:12px;min-height:16px;color:#fff;opacity:.85;font-size:12px}
 #desmosPane{display:none}
 #desmosPane iframe{width:100%;height:min(74vh,640px);border:0;border-radius:32px;background:#fff;box-shadow:0 10px 0 rgba(0,0,0,.2)}
 @media(max-width:620px){.account-form{grid-template-columns:1fr 1fr}.account-form label:nth-child(-n+2){grid-column:1/-1}.panel{padding:14px;border-radius:28px}.key{min-height:46px;font-size:16px}.screen{font-size:25px}.graph-controls #graphExpr{width:100%}.graphbox canvas{height:240px}}
 </style>
-<script>
-/* secret code: type 1111 and press = to open the assistant */
-(function(){
-  const go=()=>{location.href='/chat.html'};
-  const isCode=()=>{const s=document.getElementById('screen');return s&&s.value.trim()==='1111'};
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Enter'&&e.target&&e.target.id==='screen'&&isCode()){e.stopImmediatePropagation();e.preventDefault();go()}
-  },true);
-  document.addEventListener('click',e=>{
-    const b=e.target.closest&&e.target.closest('#keys .key');
-    if(b&&b.textContent.trim()==='='&&isCode()){e.stopImmediatePropagation();e.preventDefault();go()}
-  },true);
-})();
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js" defer></script>
 </head>
 <body><main class="wrap">
